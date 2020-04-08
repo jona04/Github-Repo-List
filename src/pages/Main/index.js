@@ -11,6 +11,7 @@ export default class Main extends Component {
         newRepo: '',
         repositoriesGit: [],
         loading: false,
+        found: true,
     };
 
     // carrega dados do local storage
@@ -26,7 +27,7 @@ export default class Main extends Component {
     componentDidUpdate(_, prevState) {
         const { repositoriesGit } = this.state;
 
-        if (prevState.repositoriesGit != repositoriesGit) {
+        if (prevState.repositoriesGit !== repositoriesGit) {
             localStorage.setItem(
                 'repositories',
                 JSON.stringify(repositoriesGit)
@@ -45,21 +46,30 @@ export default class Main extends Component {
 
         const { newRepo, repositoriesGit } = this.state;
 
-        const response = await api.get(`/repos/${newRepo}`);
+        try {
+            const response = await api.get(`/repos/${newRepo}`);
+            const data = {
+                name: response.data.full_name,
+            };
 
-        const data = {
-            name: response.data.full_name,
-        };
-
-        this.setState({
-            repositoriesGit: [...repositoriesGit, data],
-            newRepo: '',
-            loading: false,
-        });
+            this.setState({
+                repositoriesGit: [...repositoriesGit, data],
+                newRepo: '',
+                loading: false,
+                found: true,
+            });
+        } catch (error) {
+            console.log('eerrr');
+            this.setState({
+                newRepo: '',
+                loading: false,
+                found: false,
+            });
+        }
     };
 
     render() {
-        const { newRepo, repositoriesGit, loading } = this.state;
+        const { newRepo, repositoriesGit, loading, found } = this.state;
 
         return (
             <Container>
@@ -68,7 +78,7 @@ export default class Main extends Component {
                     Repositórios
                 </h1>
 
-                <Form onSubmit={this.handleSubmit}>
+                <Form onSubmit={this.handleSubmit} found={found}>
                     <input
                         type="text"
                         placeholder="Adicionar Repositorio"
