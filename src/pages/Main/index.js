@@ -85,7 +85,6 @@ export default class Main extends Component {
                         value={newRepo}
                         onChange={this.handleInputChange}
                     />
-
                     <SubmitButton loading={loading}>
                         {loading ? (
                             <FaSpinner color="#fff" size={14} />
